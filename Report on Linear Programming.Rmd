@@ -1,0 +1,135 @@
+---
+title: "Report on Linear Programming"
+author: "Himanshu Poddar"
+date: "29 April 2018"
+output: html_document
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE)
+```
+
+# Linear Programming
+
+###Firstly Let us understand What is Linear Programming?
+
+Linear Programming is a mathematical technique for maximizing or minimizing a linear function of several variables, such as cost.
+One of the reason for the popularity of LP is that it allows to model a large variety of situations with a simple framework.
+
+#Linear Programming in our daily analytics operations.
+
+Linear programming is used for obtaining the most optimal solution for a problem with given constraints. In linear programming, we formulate our real life problem into a mathematical model. It involves an objective function, linear inequalities with subject to constraints.
+LPP is all about optimising(that is, either minimise or maximise) the value of a linear objective function of a vector of decision variables, considering that the variables can only take the values defined by a set of linear constraints. LP is a case of mathematical programming where objective function and constraints are linear.
+
+Example of a linear programming problem
+Let's say a delivery man has 6 packages to deliver in a day. The warehouse is located at point A. The 6 delivery destinations are given by U, V, W, X, Y and Z. The numbers on the lines indicate the distance between the cities. To save on fuel and time the delivery person wants to take the shortest route.
+So, the delivery person will calculate different routes for going to all the 6 destinations and then come up with the shortest route. This technique of choosing the shortest route is called linear programming.
+ 
+ For solving a problem on LPP we need to formulate the problem
+ 
+ eg:
+ 1. The statement which we have to either maximise or minimise (denoted by Z).
+ MAX/MIN z = c1x1 + c2x2 + ...... + cNxN
+
+2. Given constraints
+We need to consider the constraints given in the problem statement.
+
+A1x1 + B1x2 + ............ + Z1xN <= C1
+
+A2x1 + B2x2 + ............ + Z2xN <= C2
+
+                 where A1,A2,B1.... are constants.
+                 and C1,C2 are upper or lower bounds.
+                 
+We have to consider all the constraint to either maximise or minimise Z.
+
+
+#Solving LPP problems with R
+
+In R we will use a package called lpSolve which is a package used to solve LPP.
+`r library(lpSolve)`
+
+
+There are different models present in the lp package .
+eg : "lp" ,"lp.assign" , "lp.transport" , "make.q8"
+
+We will be using lp to solve using Linear Programming Mode.
+
+
+###EXAMPLE
+A car company produces 2 models, model A and model B. Long-term projections indicate an expected demand of at least 100 model A cars and 80 model B cars each day. Because of limitations on production capacity, no more than 200 model A cars and 170 model B cars can be made daily. To satisfy a shipping contract, a total of at least 200 cars much be shipped each day. If each model A car sold results in a $2000 loss, but each model B car produces a $5000 profit, how many of each type should be made daily to maximize net profits?
+
+##Solution:
+
+Let us consider
+X= number of model A car Y=number of model B car
+
+Since $2000 is the loss, we take it as negative
+
+-2000x+5000y=Z
+
+We have to maximise Z
+
+And the constraints are
+
+Expected demand of model A      : x>=100
+
+Expected demand of model B      : y>=80 
+
+Limit of production of model A  : x<=200
+
+Limit of production of model B  : y<=170
+
+Shipping contract               : x+y>=200
+
+The linear equations can be written as
+
+1x + 0y >= 100
+
+0x + 1y >= 80
+
+1x +0y <= 200
+
+0x + 1y <= 170
+
+1x + 1y >= 200
+
+therefore,the constraint matrix formed would be the coefficient of these equations,i.e,
+
+                     | 1    0 |
+                     | 0    1 |
+                     | 1    0 |
+                     | 0    1 |
+                     | 1    1 |
+                               {5X2}
+                              
+The inequality array or the direction of the constraint can be written as,
+                    
+                    [ ">=" , ">=" , "<=" , "<=" , ">=" ]
+                    
+The array for the RHS value of the constraint array is given as,
+                    
+                    [ 100 , 80 , 200 , 170 , 200 ]
+                               
+                               
+#Code
+
+```{r}
+#Creating the constraint matrix
+l.constr <- matrix(c(1,0,0,1,1,0,0,1,1,1),nrow = 5,byrow = TRUE)
+ #Objective function
+l.obj <- c(-2000,5000)
+#Inequality of constraints
+l.dir <- c(">=",">=","<=", "<=",">=")
+#RHS of constraints
+l.rhs <- c(100,80,200,170,200)
+#Passing the values to our LPP function
+lps <- lp ("max", l.obj, l.constr, l.dir, l.rhs,compute.sens = TRUE)
+#Printing the solution
+print(lps$solution)
+```
+
+
+
+##Conclusion
+Therefore it can be seen that we have to produce 100 units of Model A and 170 of Model B on daily basis to maximize net profits.
